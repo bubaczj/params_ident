@@ -1,0 +1,119 @@
+\section{Wyznaczanie algorytmu}
+Rozpoczynaj¹c od tego rozdzia³u dla wszystkich uprzednio zdefiniowanych funkcji czasu zostaje pominiêty jawny zapis zale¿noœci od czasu ($y(t) \rightarrow y$) w celu zwiêkszenia klarownoœci zapisu.
+\subsection{Za³o¿enia uzupe³niaj¹ce}
+Stabilnoœæ obiektu wymaga spe³nienia warunków Hurwitza, w szczególnoœci, dla zadanego obiektu warunek ten sprowadza siê do postaci:
+\begin{equation}\label{eq:z1}
+a>0.
+\end{equation}
+
+Za³o¿ono wystêpowanie nieznanego parametru obiektu skaluj¹cego wp³yw sterowania. Zmodyfikowane równanie \ref{eq:obj} przyjmuje postaæ:
+\begin{equation}\label{eq:objb}
+\dot{y} = -a\cdot y + b \cdot u
+\end{equation}
+
+Identyfikacji bêd¹ podlegaæ dwa parametry, wiêc algorytm identyfikacyjny (\ref{eq:alg}) przyjmie postaæ:
+\begin{equation}\label{eq:alg2}
+\dot{k} =	\begin{bmatrix}
+			\dot{\Theta}_1(t) \\ \\
+			\dot{\Theta}_2(t)
+		\end{bmatrix} = \begin{bmatrix}
+			f_1(y(t)) \\ \\
+			f_2(y(t))
+		\end{bmatrix}
+\end{equation}
+
+\subsection{Model identyfikacyjny}
+Identyfikacjê parametrów zrealizowano poprzez zastosowanie referencyjnego obiektu liniowego:
+\begin{equation}\label{eq:mod}
+\dot{\hat{y}}(t) = -\hat{a} \hat{y}(t) + \hat {b} u_c(t), \hat{a} > 0.
+\end{equation}
+
+Wykorzystuj¹c tak skonstruowany model i algorytm identyfikacji (\ref{eq:alg2}) sterowanie (\ref{eq:ster}) wyznaczono w nastêpuj¹cy sposób:
+\begin{equation}\label{eq:sterparam}
+ u = \Theta_1u_c - \Theta_2  y.
+\end{equation}
+
+Zagwarantowanie równowa¿nego zachowania obiektu (\ref{eq:obj}) oraz modelu (\ref{eq:mod}) od momentu zrównania siê wyjœæ obu obiektów $y = \hat{y}$  wymaga spe³nienia warunku:
+\begin{align*}
+\dot{y} &= \dot{\hat{y}} \\
+-ay + bu &= -\hat{a}\hat{y}+\hat{b}u_c  & | u &= \Theta_1 u_c - \Theta_2  y\\
+-ay + b(\Theta_1 u_c - \Theta_2  y) & =  -\hat{a}\hat{y}+\hat{b}u_c \\
+\hat{a}\hat{y} - ay - b\Theta_2y & + b\Theta_1u_c - \hat{b}u_c = 0  &|y & =\hat{y}\\
+y(\hat{a} - a -b\Theta_2) + u_c(b\Theta_1 - \hat{b}) & = 0 & |(y\not\equiv 0  &\land \hat{y}\not\equiv 0).
+\end{align*}
+Powy¿szy warunek jest spe³niony, jeœli parametry $\Theta$ przyjm¹ nastêpuj¹ce wartoœci:
+\begin{equation}\label{eq:cond1}
+\Theta_1 = \frac{\hat{b}}{b} \land \Theta_2 = \frac{\hat{a} - a}{b} .
+\end{equation}
+Ponadto ró¿nica pomiêdzy wyjœciami obiektu i modelu jest nastêpuj¹ca:
+\begin{equation}\label{eq:e}
+e(t) = y - \hat{y}.
+\end{equation}
+Po¿¹dany punkt stabilnoœci jest wiêc nastêpuj¹cej postaci:
+\begin{equation}\label{eq:setpt}
+x^* = 
+\begin{bmatrix} 	e^* \\ \\
+			\Theta_1^*\\ \\
+			\Theta_2^*
+\end{bmatrix} = \begin{bmatrix}
+		0\\ \\
+		\frac{\hat{b}}{b}\\ \\
+		\frac{\hat{a}-a}{b}
+\end{bmatrix}.
+\end{equation}
+
+\subsection{Algorytm identyfikacyjny}
+Dysponuj¹c po¿adanym punktem stabilnoœci (\ref{eq:setpt}) mo¿na zaproponowaæ funkcjê Lapunowa w formie po³owy modyfikowanej normy $L_2$ wektora ³¹cz¹cego bie¿¹cy stan z po¿¹danym:
+\begin{equation}\label{eq:V}
+V(e, \Theta_1, \Theta_2) = \frac{1}{2} \left[ e^2 + \frac{1}{\gamma b}\left( b\Theta_1 - \hat{b}\right) ^2 + \frac{1}{\gamma b} \left( b \Theta_2 - \left( \hat{a} - a\right) \right) ^2 \right].
+\end{equation}
+
+Wartoœæ tak skonstruowanej funkcji Lapunowa w punkcie $x_0$ wynosi:
+\begin{equation}\label{eq:L1}
+V(x^*) = \frac{1}{2} \left[ e^2 + \frac{1}{\gamma b}\left( b\frac{\hat{b}}{b} - \hat{b}\right) ^2 + \frac{1}{\gamma b} \left( b \frac{\hat{a}-a}{b} - \left( \hat{a} - a\right) \right) ^2 \right] = 0,
+\end{equation}
+wiêc spe³nia $1^\circ$ warunek twierdzenia Lapunowa o stabilnoœci.
+
+Parametr $b$ jest nieznany, jednak znaj¹c jego znak(dla obiektu liniowego parametr $b>0$ da odpowiedŸ prost¹, natomiast $b<0$ odpowiedŸ odwrotn¹; okreœlenie znaku wymaga wiêc jedynie jednego prostego eksperymentu) ³atwo dobraæ parametr $\gamma$ tak, ¿eby iloczyn $b\gamma > 0$. Tak dobrany parametr $\gamma$ sprawia, ¿e funkcja Lapunowa okreœlona równaniem (\ref{eq:V}) jest sum¹ kwadratów zmiennych wa¿on¹ dodatnimi parametrami, a wiêc dla dowolnych zmiennych niezeruj¹cych ca³ego wyra¿enia wartoœæ tej funkcji bêdzie dodatnia. To spostrze¿enie gwarantuje spe³nienie $2^\circ$ warunku twierdzenia Lapunowa o stabilnoœci.
+
+$3^\circ$ warunku twierdzenia Lapunowa o stabilnoœci wymaga wyznaczenia pochodnej funkcji Lapunowa po czasie:
+\begin{align*}
+\dot{V}(e, \Theta_1, \Theta_2) &= e\dot{e} + \frac{1}{\gamma}\left( b\Theta_1 - \hat{b}\right)\dot{\Theta}_1 + \frac{1}{\gamma}\left( b\Theta_2 - \left( \hat{a} - a \right) \right) \dot{\Theta}_2\\
+/\dot{e} &= \dot{y} - \dot{\hat{y}}  & | \dot{y} & = -ay+bu  \land \dot{\hat{y}} =-\hat{a}\hat{y} + \hat{b}u_c /\\
+/\dot{e} &= -ay+bu - (-\hat{a}\hat{y} + \hat{b}u_c) & |u &= \Theta_1 u_c - \Theta_2 y / \\
+/\dot{e} &=-ay + b( \Theta_1 u_c - \Theta_2 y) + \hat{a}\hat{y} - \hat{b}u_c + 0& | 0& =\hat{a}y - \hat{a}y/\\
+/\dot{e} &= -ay + b\Theta_1 u_c - b\Theta_2 y + \hat{a}\hat{y} - \hat{b}u_c +\hat{a}y - \hat{a}y/\\
+/\dot{e} &= -\hat{a}(y - \hat{y}) + (b\Theta_1 - \hat{b})u_c + (\hat{a} - a - b\Theta_2)y& | e&=y - \hat{y}/ \\
+/e\dot{e}&= -\hat{a}e^2 + (b\Theta_1 - \hat{b})u_ce + (\hat{a} - a - b\Theta_2)ye/ 
+\end{align*}
+\begin{align*}
+\dot{V} & =-\hat{a}e^2 + (b\Theta_1 - \hat{b})u_ce + (\hat{a} - a - b\Theta_2)ye + \frac{1}{\gamma}\left( b\Theta_1 - \hat{b}\right)\dot{\Theta}_1 + \frac{1}{\gamma}\left( b\Theta_2 - \left( \hat{a} - a \right) \right) \dot{\Theta}_2 
+\end{align*}
+\begin{equation}\label{eq:dV}
+\dot{V} = -\hat{a}e^2 +  (b\Theta_1 - \hat{b})\left(  \frac{\dot{\Theta}_1 }{\gamma} + u_ce\right) + \left( b\Theta_2 - \left( \hat{a} - a \right) \right) \left( \frac{\dot{\Theta}_2}{\gamma} - ye  \right)
+\end{equation}
+Spe³nienie $3^\circ$ warunku twierdzenia Lapunowa o stabilnoœci wymaga, aby wartoœæ wyra¿enia (\ref{eq:dV}) by³a ujemna wszêdzie poza punktem stabilnoœci. Wyraz $-\hat{a}e^2$ spe³nia ten warunek zawsze, ze wzglêdu na za³o¿enia (\ref{eq:mod}). Mo¿na wp³ywaæ na wartoœci $\dot{\Theta}_1$ i $\dot{\Theta}_2$, a wiêc najprostsz¹ metod¹ zapewnienia wymagañ  $3^\circ$ warunku twierdzenia Lapunowa o stabilnoœci jest wyzerowanie pozosta³ych wyrazów wyra¿enia (\ref{eq:dV}) w nastêpuj¹cy sposób:
+\begin{equation}\label{eq:dTh}
+\begin{bmatrix}
+\dot{\Theta}_1\\ \\
+\dot{\Theta}_2
+\end{bmatrix} = 
+\begin{bmatrix}
+-u_ce\gamma\\ \\
+ye\gamma
+\end{bmatrix}.
+\end{equation}
+
+Dysponuj¹c metod¹ wyznaczania parametru $\gamma$ powy¿sze wyra¿enie jest gotowym algorytmem identyfikuj¹cym zadane parametry. Gdy wartoœæ $e$ ustabilizuje siê w 0, to poszukiwane parametry procesu mo¿na odczytaæ w nastêpuj¹cy sposób:
+\begin{equation}\label{eq:read}
+\begin{bmatrix}
+a_{est}\\ \\
+b_{est}
+\end{bmatrix}=
+\begin{bmatrix}
+\hat{a} - \hat{b}\frac{\Theta_2}{\Theta_1}\\ \\
+\frac{\hat{b}}{\Theta_1} 
+\end{bmatrix}
+\end{equation}
+
+

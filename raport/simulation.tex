@@ -1,0 +1,71 @@
+\section{Symulacja algorytmu identyfikacyjnego}
+Symulacjê zaprojektowanego algorytmu przeprowadzono za pomoc¹ pakietu MATLAB.
+\subsection{Symulowany uk³ad}
+Uk³ad równañ ró¿niczkowych opisuj¹cych uk³ad wraz z algorytmem identyfikacyjnym sk³ada siê z równañ (\ref{eq:obj}), (\ref{eq:mod}), (\ref{eq:e}) oraz (\ref{eq:dTh}) i wyra¿a siê w nastêpuj¹cy sposób:
+\begin{equation}
+\begin{bmatrix}
+\dot{y} \\ \\ 
+\dot{\hat{y}} \\ \\
+\dot{e} \\ \\
+\dot{\Theta}_1 \\ \\
+\dot{\Theta}_2
+\end{bmatrix} = 
+\begin{bmatrix}
+-ay + bu \\ \\
+-\hat{a}\hat{y} + \hat{b}u_c \\ \\
+\dot{y} - \dot{\hat{y}} \\ \\
+-u_ce\gamma \\ \\
+ye\gamma
+\end{bmatrix} = \left| u =  \Theta_1 u_c - \Theta_2y \right| =
+\begin{bmatrix}
+-ay + b \Theta_1 u_c - b\Theta_2y \\ \\
+-\hat{a}\hat{y} + \hat{b}u_c \\ \\
+\dot{y} - \dot{\hat{y}} \\ \\
+-u_ce\gamma \\ \\
+ye\gamma
+\end{bmatrix}.
+\end{equation}
+W uk³adzie tym wystêpuj¹ nastêpuj¹ce obiekty:
+\begin{itemize}
+\item zmienne stanu: $[y, \hat{y}, e, \Theta_1, \Theta_2]^{T}$ (nie wystêpuj¹ przekszta³cenia miêdzy stanem, a wyjœciem, wiêc mo¿na je traktowaæ jako to¿same),
+\item sygna³ steruj¹cy $[u_c]$,
+\item parametry znane: $[\hat{a}, \hat{b}, \gamma]$,
+\item parametry nieznane: $[a, b]$.
+\end{itemize}
+Sygna³ $e$ jest wyznacznikiem realizacji zadania identyfikacji, jednak ³atwo go wyrugowaæ z równañ, a nastêpnie ponownie wyznaczyæ na podstawie pozosta³ych przebiegów. Dodatkowo zmniejszenie uk³adu równañ przyspieszy obliczenia (w tym przypadku nieznacznie, ale w ogólnoœci warto siê o to staraæ). Zmodyfikowany uk³ad przyjmie postaæ:
+\begin{equation}\label{eq:sym}
+\begin{bmatrix}
+\dot{y} \\ \\ 
+\dot{\hat{y}} \\ \\
+\dot{\Theta}_1 \\ \\
+\dot{\Theta}_2
+\end{bmatrix} = 
+\begin{bmatrix}
+-ay + b \Theta_1 u_c - b\Theta_2y \\ \\
+-\hat{a}\hat{y} + \hat{b}u_c \\ \\
+-u_c({y} - {\hat{y}})\gamma \\ \\
+y({y} - {\hat{y}})\gamma
+\end{bmatrix}.
+\end{equation}
+Uzyskany uk³ad sk³ada siê z równañ ró¿niczkowych pierwszego rzêdu i jako taki nie wymaga dalszych modyfikacji przed implementacj¹. Aspekty, które wymagaj¹ komentarza s¹ nastêpuj¹ce:
+\begin{itemize}
+\item stan pocz¹tkowy $x_0 = [y_0, \hat{y}_0, \Theta_{10}, \Theta_{20}]^{T}$ bêdzie generowany w nastêpuj¹cy sposób:
+$y_0$  losowe - nie ma powodu zak³adaæ czegokolwiek o nieznanym obiekcie, $\hat{y}_0 = 0$ w obiekcie nie wystêpuje wyraz ${\sim \frac{1}{\hat{y}}}$, wiêc to bezpieczny punkt sartowy, $ \Theta_{10} = 1$  optymistyczne za³o¿enie, ¿e obiekt i model maj¹ takie same parametry $b$, $ \Theta_{20} = 0$ optymistyczne za³o¿enie, ¿e obiekt i model maj¹ równe parametry $a$;
+\item parametry nieznane $[a, b]$ bêd¹ losowane;
+\item parametry znane $[\hat{a}, \hat{b}]$ bêd¹ wybierane jako $[1 1]$ - najprostszy nietrywialny obiekt, natomiast parametr $\gamma$ bêdzie okreœlony jako ${\gamma=sign(b)}$, w celu spe³nienia za³o¿enia $b\gamma > 0$.
+\end{itemize}
+
+\subsection{Sygna³ steruj¹cy}
+Analizuj¹c uk³ad równañ (\ref{eq:sym}) widaæ, ¿e pochodne sygna³ów identyfikuj¹cych $\dot{\Theta}_1, \dot{\Theta}_2$ s¹ zale¿ne liniowo od ró¿nicy pomiêdzy wyjœciami obiektu i modelu $e = y - \hat{y}$, w szczególnoœci, gdy wyraz $e = 0$ nadmienione pochodne zeruj¹ siê, co oznacza, ¿e algorytm adaptacyjny zatrzyma siê. Wyzerowanie siê sygna³u $e$ mo¿e nast¹piæ w dwóch przypadkach: identyfikacja obiektu zakoñczy³a siê sukcesem, albo sygna³y $y$ i $\hat{y}$ ustali³y siê na równym poziomie ze wzglêdu na sta³oœæ sterowania $u_c$, jednak parametry $\Theta_1, \Theta_2$ zidentyfikowa³y inny obiekt liniowy, który dla sterowania $u = \Theta_1 u_c -  \Theta_2 y$ ustala siê akurat na tym samym poziomie (istnieje nieskoñczenie wiele takich obiektów liniowych dla zadanego poziomu). Zabezpieczenie siê przed zagro¿eniem zajœcia drugiej sytuacji wymaga zmiennoœci sygna³u steruj¹cego $u_c$ w czasie. Z tego wzglêdu zaproponowano sinusoidalny przebieg sygna³u steruj¹cego $u_c = \sin(t)$.
+
+\subsection{Przyk³adowa symulacja}
+Przygotowany projekt symuluje algorytm identyfikacji nieznanych parametrów obiektu liniowego. Poni¿ej przedstawiono przyk³adowy wynik symulacji:
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width = 1.0\textwidth, trim = {0 8cm 0 8cm}]{sim.pdf}
+\caption{Przebiegi sygna³ów symulacji algorytmu identyfikacyjnego.}
+\label{fig:sim}
+\end{center}
+\end{figure}
+
+
